@@ -50,7 +50,7 @@ def callOLSsearch(query):
 
 ###########Search for a certain label in all ontologies
 def searchforlabel(term):
-#Missing: PAGING FOR ALL RESULTS (Right now only results of first page are shown) 
+#Missing: PAGING FOR ALL RESULTS (Right now only results of first page are shown)
   anwser = callOLSsearch(term)
   parseLabelRequest(anwser)
 
@@ -101,8 +101,11 @@ def parseIriandOntologyRequest(anwser):
     #print(anwser["iri"])
     #print(anwser["ontology_name"])
     #print(anwser["is_defining_ontology"])
-    tmpterm=term(anwser["label"], anwser["ontology_name"], anwser["iri"], anwser["description"])
-    return tmpterm
+    try:
+        tmpterm=term(anwser["label"], anwser["ontology_name"], anwser["iri"], anwser["description"])
+        return tmpterm
+    except:
+        raise TypeError('Input Argument has wrong structure')
 #############################################
 
 
@@ -132,8 +135,8 @@ def showTerm(term):
 
 #Print termlist, better table formats can be found here http://stackoverflow.com/questions/9535954/python-printing-lists-as-tabular-data
 def showTermList():
-    if (termlist == 0):
-        print("Termlist is empty")
+    if (len(termlist) == 0):
+        raise ValueError("Termlist is empty")
     else:
         print("Index - Label - "+"Ontology - "+"iri")
         index=0
@@ -144,12 +147,9 @@ def showTermList():
 #Show a certain term from the termlist by index (of the termlist)
 def showTermByIndex(index):
     if (index>len(termlist)):
-        print("Index is larger than the termlist!")
-        return False
+        raise ValueError('Index is larger than the termlist!')
     if (index<0):
-        print("Index is below 0, this is not allowed!")
-        #raise Exception('Index is below 0, this is not allowed!') #code should be changed to something like this
-        return False
+        raise ValueError('Index is below 0, this is not allowed!')
 
     if (index>0 and index<len(termlist)):
         #print("Label: "+termlist[index].label)
@@ -173,27 +173,22 @@ def showTermByIri(iri):
         index=index+1
 
     if (foundFlag==False):
-        print("iri not found it termlist")
-        return False
-    return True
+        raise NameError('iri not found it termlist')
+    return True #In case the the term was found
+
 
 
 
 
 #Excuting of functions during development. Obviously this will go away one day
-searchforlabel("lactose")
-print("\n")
+#This is mostly done by the test class now
+#searchforlabel("lactose")
 #showTermList()
-print("\n")
-showTermByIndex(0)
-print("\n")
+#showTermByIndex(3)
 #showTermByIri("http://purl.obolibrary.org/obo/HP_0004789")
-print("\n")
-
-
 #http://www.ebi.ac.uk/ols/beta/ontologies/go/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FGO_0005576
-x=searchForIriInOntology("http://purl.obolibrary.org/obo/GO_0005576", "go")
-showTerm(x)
+#x=searchForIriInOntology("http://purl.obolibrary.org/obo/GO_0005576", "go")
+#showTerm(x)
 #showTermByIndex(-5) - see test, covered there
 #showTermByIndex(100) - see test, covered there
 #showTermByIri("http://purl.obolibrary.org/obo/HP_000478239") - see test, covered there
