@@ -6,10 +6,12 @@ termlist=[]
 
 #This class represents a term, it contains all (relevant?) term information in OLS
 class term:
-    label=""
-    ontology=""
-    iri=""
-    description=""
+    # These are variables shared by all terms (like static variables)?
+    # https://docs.python.org/2/tutorial/classes.html#class-and-instance-variables
+    # label=""
+    # ontology=""
+    # iri=""
+    # description=""
 
     def __init__(self, label, ontology, iri, description):
         self.label=label
