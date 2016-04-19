@@ -6,12 +6,6 @@ termlist=[]
 
 #This class represents a term, it contains all (relevant?) term information in OLS
 class term:
-    # These are variables shared by all terms (like static variables)?
-    # https://docs.python.org/2/tutorial/classes.html#class-and-instance-variables
-    # label=""
-    # ontology=""
-    # iri=""
-    # description=""
 
     def __init__(self, label, ontology, iri, description):
         self.label=label
@@ -19,57 +13,58 @@ class term:
         self.iri=iri
         self.description=description
 
-#Gonna delete the ontology class I think
-#class ontology:
-#    def __init__(self, name, description):
-#        self.name=name
-#        self.description=description
+#Class to save the ontology data
+class ontology:
+    def __init__(self, title, description, homepage, additional):
+        self.title=title
+        self.description=description
+        self.homepage=homepage
+        self.additional=additional
 
 
-#    def __init__(self, inputterm):
-#        self.term=inputterm
-#        self.searchurl="http://www.ebi.ac.uk/ols/beta/api/search?q="
-    #    self.request=self.searchurl+self.term
-    #    print(self.request)
-
-#   def callOls(self):
-#        reply = urllib.urlopen(self.request)
-#        self.anwser = json.load(reply)
-#        self.parse()
-
-
+#clean up termlist
+def clearTermlist():
+    termlist=[]
 
 #generic call to the OLS search API
-def callOLSsearch(query):
-    searchurl="http://www.ebi.ac.uk/ols/beta/api/search?q="
-    request=searchurl+query
-    reply = urllib.urlopen(request)
-    anwser = json.load(reply)
-    return anwser
+def callOLSsearch(searchurl, query):
+    try:
+        request=searchurl+query
+        reply = urllib.urlopen(request)
+        anwser = json.load(reply)
+        return anwser
+    except:
+        raise LookupError('Failed to reach the Endpoint, Service is down or wrong url!')
+
+
+
+def searchForOntology(ontology):
+    searchurl="http://www.ebi.ac.uk/ols/beta/api/ontologies/"
+    anwser = callOLSsearch(searchurl,ontology)
+    parseOntoloyData(anwser)
+
+def parseOntoloyData(data):
+    try:
+        title=data["config"]["title"]
+        description=data["config"]["description"]
+        homepage=data["config"]["homepage"]
+        additional=[data["numberOfTerms"], data["numberOfProperties"], data["numberOfIndividuals"]]
+        return ontology(title, description,homepage,additional)
+    except:
+        raise TypeError('Input Argument has wrong structure')
+
 
 
 ###########Search for a certain label in all ontologies
 def searchforlabel(term):
 #Missing: PAGING FOR ALL RESULTS (Right now only results of first page are shown)
-  anwser = callOLSsearch(term)
-  parseLabelRequest(anwser)
+    searchurl="http://www.ebi.ac.uk/ols/beta/api/search?q="
+    anwser = callOLSsearch(searchurl,term)
+    parseLabelRequest(anwser)
 
-#parse the result
+#parse the result for a term request
 def parseLabelRequest(anwser):
-    #print(anwser)
-    #print("\n")
-    #print(anwser["response"])
-    #print("\n")
-    #print(anwser["response"]["numFound"])
-    #print("\n")
-    #print(anwser["response"]["docs"])
-    #print(self.anwser["response"]["docs"][0]["iri"])
-    #print(len(anwser["response"]["docs"]))
     for counter in anwser["response"]["docs"]:
-        #print(counter)
-        #print(counter["label"])
-        #print(counter["id"])
-        tmpdescription=""
         if "description" in counter:
             print("{}".join(counter["description"]))
             tmpdescription=counter["description"]
@@ -96,11 +91,6 @@ def searchForIriInOntology(iri, ontology):
 
 #parse the result
 def parseIriandOntologyRequest(anwser):
-    #print(anwser)
-    #print(anwser["label"])
-    #print(anwser["iri"])
-    #print(anwser["ontology_name"])
-    #print(anwser["is_defining_ontology"])
     try:
         tmpterm=term(anwser["label"], anwser["ontology_name"], anwser["iri"], anwser["description"])
         return tmpterm
@@ -109,16 +99,7 @@ def parseIriandOntologyRequest(anwser):
 #############################################
 
 
-# search for Ontology information - work in progress
-#def searchForOntology(ontology):
-#    searchurl="http://www.ebi.ac.uk/ols/beta/api/ontologies/"
-#    request=searchurl+query
-#    reply = urllib.urlopen(request)
-#    anwser = json.load(reply)
-#    parseOntoloyData(anwser)
 
-#def parseOntologyData():
-#    print(anwser)
 
 
 ###Show Functions, these print the results to the screen
@@ -128,8 +109,6 @@ def showTerm(term):
     print("Label: "+term.label)
     print("Ontology: "+term.ontology)
     print("Iri: "+term.iri)
-    #Getting rid of unicode symbole for printing (List as string)
-    #print("{}".join(term.description))
     print(term.description)
 
 
@@ -152,11 +131,6 @@ def showTermByIndex(index):
         raise ValueError('Index is below 0, this is not allowed!')
 
     if (index>0 and index<len(termlist)):
-        #print("Label: "+termlist[index].label)
-        #print("Ontology: "+termlist[index].ontology)
-        #print("Iri: "+termlist[index].iri)
-        #Getting rid of unicode symbole for printing (List as string)
-        #print("{}".join(termlist[index].description))
         showTerm(termlist[index])
         return True
 
@@ -178,7 +152,7 @@ def showTermByIri(iri):
 
 
 
-
+searchForOntology("efo")
 
 #Excuting of functions during development. Obviously this will go away one day
 #This is mostly done by the test class now

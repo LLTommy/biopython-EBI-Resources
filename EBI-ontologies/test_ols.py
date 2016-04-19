@@ -6,12 +6,18 @@ import ols
 print("\n \n")
 print("Start testing")
 
+class searchFunction(unittest.TestCase):
+    def test_callsOLSearch_wrong_URL(self):
+        self.assertRaises(LookupError, ols.callOLSsearch, "nothing", "wrong")
+
 class parseFunctions(unittest.TestCase):
 
     #def test_searchForIriInOntology_(self):
 
     def test_parseIriandOntologyRequest_wrongArgument(self):
         self.assertRaises(TypeError, ols.parseIriandOntologyRequest, ["wrong structure"])
+    def test_parseOntologyData_wrongArgument(self):
+        self.assertRaises(TypeError, ols.parseOntoloyData,"Nothing")
 
     #def test_parseIriandOntologyRequest_correct(self): #not really necessary
 
