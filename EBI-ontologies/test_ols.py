@@ -10,9 +10,26 @@ class searchFunction(unittest.TestCase):
     def test_callsOLSearch_wrong_URL(self):
         self.assertRaises(LookupError, ols.callOLSsearch, "nothing", "wrong")
 
-class parseFunctions(unittest.TestCase):
+    def test_searchForIriInOntology_wrongIRI(self):
+        self.assertRaises(LookupError, ols.searchForIriInOntology,"xxx","efo")
+    def test_searchForIriInOntology_wrongOntology(self):
+        self.assertRaises(LookupError, ols.searchForIriInOntology,"http://www.ebi.ac.uk/efo/EFO_0001443","xxx")
 
-    #def test_searchForIriInOntology_(self):
+
+    #Calling a bunch of somewhat random ontologies to test the function
+    def test_searchEFO_positiv(self):
+        ols.searchForOntology("efo")
+    def test_searchHB_positiv(self):
+        ols.searchForOntology("hp")
+    def test_searchHB_positiv(self):
+        ols.searchForOntology("aeo")
+    def test_searchHB_positiv(self):
+        ols.searchForOntology("atol")
+    def test_searchHB_positiv(self):
+        ols.searchForOntology("chebi")
+
+
+class parseFunctions(unittest.TestCase):
 
     def test_parseIriandOntologyRequest_wrongArgument(self):
         self.assertRaises(TypeError, ols.parseIriandOntologyRequest, ["wrong structure"])
@@ -27,6 +44,9 @@ class showFunction(unittest.TestCase):
     #def test_showTermList(self):
     #    self.assertRaises(ValueError, ols.showTermList)
 
+    def test_showTerm_noTerm(self):
+        self.assertRaises(AttributeError, ols.showTerm, "Just a string")
+
     #Testing showTermByIri
     def test_showTermByIri_notFound(self):
         self.assertRaises(NameError,ols.showTermByIri, "http://purl.obolibrary.org/obo/HP_000478239")
@@ -34,22 +54,22 @@ class showFunction(unittest.TestCase):
     def test_showTermByIri_found(self):
         ols.searchforlabel("lactose")
         reply=ols.showTermByIri("http://purl.obolibrary.org/obo/HP_0004789")
-        print(reply)
-        self.assertEqual(reply,True)
 
     #Testing showTermByIndex
     def test_showTermByIndex_belowZero(self):
-        self.assertRaises(ValueError, ols.showTermByIndex, -3) #To be done, checking for exception instead of true/false
+        self.assertRaises(ValueError, ols.showTermByIndex, -3)
 
     def test_showTermByIndex_found(self):
         ols.searchforlabel("lactose")
         reply=ols.showTermByIndex(2)
-        self.assertEqual(reply,True)
+
 
     def test_showTermByIndex_OutOfBounds(self):
         self.assertRaises(ValueError, ols.showTermByIndex, 100000)
 
-
+    #Testing showOntology
+    def test_showOntology_wrongData(self):
+        self.assertRaises(TypeError, ols.showOntoloy, ["just a random type"])
 
 
 if __name__ == '__main__':

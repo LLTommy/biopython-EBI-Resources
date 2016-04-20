@@ -37,11 +37,10 @@ def callOLSsearch(searchurl, query):
         raise LookupError('Failed to reach the Endpoint, Service is down or wrong url!')
 
 
-
 def searchForOntology(ontology):
     searchurl="http://www.ebi.ac.uk/ols/beta/api/ontologies/"
     anwser = callOLSsearch(searchurl,ontology)
-    parseOntoloyData(anwser)
+    return parseOntoloyData(anwser)
 
 def parseOntoloyData(data):
     try:
@@ -54,6 +53,18 @@ def parseOntoloyData(data):
         raise TypeError('Input Argument has wrong structure')
 
 
+def showOntoloy(ontology):
+    try:
+        print("-----OntologyInformation-----------")
+        print("Title: "+ontology.title)
+        print("Description: "+ontology.description)
+        print("Homepage: "+ontology.homepage)
+        print("# of terms:"+ontology.additional["numberOfTerms"])
+        print("# of properties:"+ontology.additional["numberOfProperties"])
+        print("# of individuals:"+ontology.additional["numberOfIndividuals"])
+        print("-----------------------------------")
+    except:
+        raise TypeError('Could not parse Input argument!')
 
 ###########Search for a certain label in all ontologies
 def searchforlabel(term):
@@ -64,6 +75,7 @@ def searchforlabel(term):
 
 #parse the result for a term request
 def parseLabelRequest(anwser):
+    clearTermlist()
     for counter in anwser["response"]["docs"]:
         if "description" in counter:
             print("{}".join(counter["description"]))
@@ -87,7 +99,11 @@ def searchForIriInOntology(iri, ontology):
     request=searchurl+encodediri
     reply = urllib.urlopen(request)
     anwser = json.load(reply)
-    return parseIriandOntologyRequest(anwser)
+    if (anwser["status"]==404):
+        print("Resource not found!")
+        raise LookupError('Resource not found! 404 Error, iri or ontology is wrong!')
+    else:
+        return parseIriandOntologyRequest(anwser)
 
 #parse the result
 def parseIriandOntologyRequest(anwser):
@@ -100,17 +116,30 @@ def parseIriandOntologyRequest(anwser):
 
 
 
+#Retrieve a term
+#/api/ontologies/{ontology}/terms/{iri}
+
+#Retrieve a property
+# /api/ontologies/{ontology}/properties/{iri}
+
+#Retrieve a individual
+# GET /api/ontologies/{ontology}/individuals/{iri}
+
+# suggest endpoint
+# /api/suggest?q={query}
+
 
 
 ###Show Functions, these print the results to the screen
-
 #Print an term instance to the screen
 def showTerm(term):
-    print("Label: "+term.label)
-    print("Ontology: "+term.ontology)
-    print("Iri: "+term.iri)
-    print(term.description)
-
+    try:
+        print("Label: "+term.label)
+        print("Ontology: "+term.ontology)
+        print("Iri: "+term.iri)
+        print(term.description)
+    except:
+        raise AttributeError("Input Argument has wrong structure!")
 
 #Print termlist, better table formats can be found here http://stackoverflow.com/questions/9535954/python-printing-lists-as-tabular-data
 def showTermList():
@@ -129,11 +158,8 @@ def showTermByIndex(index):
         raise ValueError('Index is larger than the termlist!')
     if (index<0):
         raise ValueError('Index is below 0, this is not allowed!')
-
     if (index>0 and index<len(termlist)):
         showTerm(termlist[index])
-        return True
-
 
 #Show a certain term from the termlist, select by iri
 def showTermByIri(iri):
@@ -148,21 +174,7 @@ def showTermByIri(iri):
 
     if (foundFlag==False):
         raise NameError('iri not found it termlist')
-    return True #In case the the term was found
 
 
 
-searchForOntology("efo")
-
-#Excuting of functions during development. Obviously this will go away one day
-#This is mostly done by the test class now
-#searchforlabel("lactose")
-#showTermList()
-#showTermByIndex(3)
-#showTermByIri("http://purl.obolibrary.org/obo/HP_0004789")
-#http://www.ebi.ac.uk/ols/beta/ontologies/go/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FGO_0005576
-#x=searchForIriInOntology("http://purl.obolibrary.org/obo/GO_0005576", "go")
-#showTerm(x)
-#showTermByIndex(-5) - see test, covered there
-#showTermByIndex(100) - see test, covered there
-#showTermByIri("http://purl.obolibrary.org/obo/HP_000478239") - see test, covered there
+#Only for development I call functions here sometimes
