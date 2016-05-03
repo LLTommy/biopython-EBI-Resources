@@ -1,6 +1,5 @@
 import urllib
 from lxml import etree
-from .biosamples import  BioSample, BioSampleGroup
 
 class Api:
     """Base class to get BioSamples and BioSamplesGroup usign the BioSample API"""
@@ -10,19 +9,20 @@ class Api:
     def __init__(self):
         pass
 
-    def getSample(self, accession):
+    def getSampleXml(self, accession):
         """Get the BioSample with specific id"""
+        from .biosamples import BioSample
         url = self.__BASE_URL + 'sample/' + accession
-        sampleObj = BioSample(self._queryapi(url))
-        return sampleObj
+        return self._queryapi(url)
 
 
-    def getGroup(self, accession):
+
+    def getGroupXml(self, accession):
         """Get the BioSampleGroup with specific id"""
+        from .biosamples import BioSampleGroup
         url = self.__BASE_URL + 'group/' + accession
-        groupObj = BioSampleGroup(self._queryapi(url))
-        return groupObj
-    
+        return self._queryapi(url)
+
     def getGroupSamples(self, accession, query="", sortby='relevance', sortorder='descending', pagesize=10, page=1):
         """Get the BioSamples accessions associated with the group"""
         baseurl = self.__BASE_URL

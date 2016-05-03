@@ -58,7 +58,7 @@ class BioSample(BioProduct):
             tempapi = Api()
             while elem.hasparent():
                 parentAcc = elem.getderiveFrom().text
-                elem = tempapi.getSample(parentAcc)
+                elem = BioSample(tempapi.getSampleXml(parentAcc))
                 self.ancestors.append(elem)
             self.cachedancestor=True
         return self.ancestors
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     """Inner Test suite"""
     api = Api()
     # api.getGroupSamples('SAMEG82620')
-    sample = api.getSample('SAMEA4448577')
+    sample = BioSample(api.getSampleXml('SAMEA4448577'))
     sample.printDoc()
     sampleorigin = sample.getorigin()
     sample.printderivationtree()
