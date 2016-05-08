@@ -41,7 +41,7 @@ def print_xml(doc):
     print(etree.tostring(doc, pretty_print=True, method="xml").decode(__DEFAULT_ENCODING))
 
 
-def sampletab_json(file_path):
+def sampletab_to_jsonobj(file_path):
     """Convert a given sampletab file to a json matrix string"""
 
     import re
@@ -56,8 +56,89 @@ def sampletab_json(file_path):
             sampletab.append(current_line)
     sampletab_dict = dict()
     sampletab_dict["sampletab"] = sampletab
-    return json.dump(sampletab_dict, None)
+    return sampletab_dict
+
+
+def jsonobj_to_sampletab(json_obj, file_out="sampletab.txt"):
+    """Write convert the provided sampletab in json format to a text file"""
+    import os
+    if type(json_obj) is str:
+        obj = json.load(json_obj)
+    else:
+        obj = json_obj
+
+    overwrite_choises = {"y": True, "n": False}
+    print("Writing into {}".format(file_out))
+    while os.path.isfile(file_out):
+        overwrite_input = input("Output file already exists, overwrite? [y/N] ")
+        if not (bool(overwrite_input) and overwrite_choises.get(overwrite_input.lower(), False)):
+            file_out = input("Provide a new path to save the file: ")
+        else:
+            print("File {} will be overwritten".format(os.path.abspath(file_out)))
+            break
+    with open(file_out, 'w') as fout:
+        for line in obj["sampletab"]:
+            fout.write("\t".join(map(str, line)))
+            fout.write("\r\n")
+
+
+def validate_sampletab(file_path):
+    sampletab_json_obj= sampletab_to_jsonobj(file_path)
+    url = "https://www.ebi.ac.uk/biosamples/beta/sampletab/api/v1/json/va"
+    json_response = submission(url,sampletab_json_obj)
+    if json_response:
+        if json_response["errors"]:
+            handle_error_response(json_response)
+        else:
+            #TODO change the destination file name to have a _val suffix
+            jsonobj_to_sampletab(json_response,file_path)
+
+
+def submit_sampletab(file_path, api_key):
+    sampletab_json_obj = sampletab_to_jsonobj(file_path)
+    url = "https://www.ebi.ac.uk/biosamples/beta/sampletab/"\
+        "api/v1/json/sb?apikey={}".format(api_key)
+    json_response = submission(url, sampletab_json_obj)
+    if json_response:
+        if json_response["errors"]:
+            handle_error_response(json_response)
+        else:
+            #TODO change the destination file name to have a _sub suffix
+            jsonobj_to_sampletab(json_response,file_path)
+
+
+def submission(url,jsonobj):
+
+    headers = {
+        "Content-Type": "application/json",
+        "Connection": "keep-alive"
+    }
+
+    r = requests.post(url, headers=headers, data=json.dumps(jsonobj))
+
+    if r.status_code == requests.codes.ok:
+        json_response = r.json()
+        return json_response
+        #     jsonobj_to_sampletab(r.json(), file_path)
+    else:
+        print(r.status_code)
+        print(r.text)
+
+
+def handle_error_response(json_response):
+    """Handle function for error in submission response"""
+    print(json_response["error"])
 
 
 if __name__ == "__main__":
-    print(sampletab_json("WTSIi168-A.txt"))
+    print(sampletab_to_jsonobj("WTSIi168-A.txt"))
+
+    # test_str = open("json_test.txt", "r")
+    # jsonobj_to_sampletab(test_str)
+    # test_str.close()
+
+    # validate_sampletab("WTSIi168-A.txt")
+
+    with open("apikey.txt", "r") as apikey_file:
+        apikey = apikey_file.readline()
+    submit_sampletab("WTSIi170-B_tosubmit.txt", apikey)
