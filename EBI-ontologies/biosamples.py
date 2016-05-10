@@ -24,10 +24,13 @@ class Api:
 
     @staticmethod
     def _queryapi(url):
-        urlDocument = urllib.urlopen(url)
-        xmlRoot = etree.fromstring(urlDocument.read())
-        urlDocument.close()
-        return xmlRoot
+        try:
+            urlDocument = urllib.urlopen(url)
+            xmlRoot = etree.fromstring(urlDocument.read())
+            urlDocument.close()
+            return xmlRoot
+        except:
+            raise LookupError('Failed to reach the Endpoint, Service is down or wrong url!')
 
 
 class BioProduct:
@@ -98,9 +101,8 @@ class BioSampleGroup(BioProduct):
 
 
 
-api = Api()
-
-sample = api.getSample('SAMEA4448577')
-sampleorigin = sample.getorigin()
-sample.printderivationtree()
-
+#Part below is just for development and will be removed once it is finished
+#api = Api()
+#sample = api.getSample('SAMEA4448577')
+#sampleorigin = sample.getorigin()
+#sample.printderivationtree()
