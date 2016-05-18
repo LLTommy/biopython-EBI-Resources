@@ -38,11 +38,11 @@ def callOLSsearch(searchurl, query):
 
 
 def searchForOntology(ontology):
-    searchurl="http://www.ebi.ac.uk/ols/beta/api/ontologies/"
+    searchurl="http://www.ebi.ac.uk/ols/api/ontologies/"
     anwser = callOLSsearch(searchurl,ontology)
-    return parseOntoloyData(anwser)
+    return parseOntologyData(anwser)
 
-def parseOntoloyData(data):
+def parseOntologyData(data):
     try:
         title=data["config"]["title"]
         description=data["config"]["description"]
@@ -53,23 +53,23 @@ def parseOntoloyData(data):
         raise TypeError('Input Argument has wrong structure')
 
 
-def showOntoloy(ontology):
+def showOntology(ontology):
     try:
         print("-----OntologyInformation-----------")
         print("Title: "+ontology.title)
         print("Description: "+ontology.description)
         print("Homepage: "+ontology.homepage)
-        print("# of terms:"+ontology.additional["numberOfTerms"])
-        print("# of properties:"+ontology.additional["numberOfProperties"])
-        print("# of individuals:"+ontology.additional["numberOfIndividuals"])
+        #print("# of terms:"+ontology.additional["numberOfTerms"])
+        #print("# of properties:"+ontology.additional["numberOfProperties"])
+        #print("# of individuals:"+ontology.additional["numberOfIndividuals"])
         print("-----------------------------------")
     except:
         raise TypeError('Could not parse Input argument!')
 
 ###########Search for a certain label in all ontologies
-def searchforlabel(term):
+def searchForLabel(term):
 #Missing: PAGING FOR ALL RESULTS (Right now only results of first page are shown)
-    searchurl="http://www.ebi.ac.uk/ols/beta/api/search?q="
+    searchurl="http://www.ebi.ac.uk/ols/api/search?q="
     anwser = callOLSsearch(searchurl,term)
     parseLabelRequest(anwser)
 
@@ -93,7 +93,7 @@ def parseLabelRequest(anwser):
 
 ############### Search for a certain IRI/URI in a certain ontology
 def searchForIriInOntology(iri, ontology):
-    searchurl="http://www.ebi.ac.uk/ols/beta/api/ontologies/"+ontology+"/terms/"
+    searchurl="http://www.ebi.ac.uk/ols/api/ontologies/"+ontology+"/terms/"
     encodediri=urllib.quote(iri, safe='')
     encodediri=urllib.quote(encodediri, safe='') # double encoded
     request=searchurl+encodediri

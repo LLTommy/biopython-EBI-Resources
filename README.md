@@ -12,6 +12,20 @@ python test_ols.py
 
 In python (start python in console with *python*):
 import ols
-ols.searchforlabel(term) e.g. ols.searchforlabel("lactose")
 
-all function are available by using ols. something
+Search for a term:
+ols.searchForLabel(term) e.g. ols.searchForLabel("lactose")
+
+This fills the termlist with terms, to browse this termslist you can use:
+ols.showTermList();
+
+To further investigate the termlist, you can use:
+
+ols.showTermByIndex(index)
+ols.showTermByIri(iri)
+
+
+
+Search for an ontology:
+x=ols.searchForOntology('efo')
+ols.showOntology(x)

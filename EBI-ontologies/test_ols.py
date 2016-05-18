@@ -9,12 +9,10 @@ print("Start testing")
 class searchFunction(unittest.TestCase):
     def test_callsOLSearch_wrong_URL(self):
         self.assertRaises(LookupError, ols.callOLSsearch, "nothing", "wrong")
-
     def test_searchForIriInOntology_wrongIRI(self):
         self.assertRaises(LookupError, ols.searchForIriInOntology,"xxx","efo")
     def test_searchForIriInOntology_wrongOntology(self):
         self.assertRaises(LookupError, ols.searchForIriInOntology,"http://www.ebi.ac.uk/efo/EFO_0001443","xxx")
-
 
     #Calling a bunch of somewhat random ontologies to test the function
     def test_searchEFO_positiv(self):
@@ -34,7 +32,7 @@ class parseFunctions(unittest.TestCase):
     def test_parseIriandOntologyRequest_wrongArgument(self):
         self.assertRaises(TypeError, ols.parseIriandOntologyRequest, ["wrong structure"])
     def test_parseOntologyData_wrongArgument(self):
-        self.assertRaises(TypeError, ols.parseOntoloyData,"Nothing")
+        self.assertRaises(TypeError, ols.parseOntologyData,"Nothing")
 
     #def test_parseIriandOntologyRequest_correct(self): #not really necessary
 
@@ -52,15 +50,15 @@ class showFunction(unittest.TestCase):
         self.assertRaises(NameError,ols.showTermByIri, "http://purl.obolibrary.org/obo/HP_000478239")
 
     def test_showTermByIri_found(self):
-        ols.searchforlabel("lactose")
-        reply=ols.showTermByIri("http://purl.obolibrary.org/obo/HP_0004789")
+        ols.searchForLabel("lactose")
+        reply=ols.showTermByIri("http://purl.obolibrary.org/obo/CHEBI_17716")
 
     #Testing showTermByIndex
     def test_showTermByIndex_belowZero(self):
         self.assertRaises(ValueError, ols.showTermByIndex, -3)
 
     def test_showTermByIndex_found(self):
-        ols.searchforlabel("lactose")
+        ols.searchForLabel("lactose")
         reply=ols.showTermByIndex(2)
 
 
@@ -69,7 +67,7 @@ class showFunction(unittest.TestCase):
 
     #Testing showOntology
     def test_showOntology_wrongData(self):
-        self.assertRaises(TypeError, ols.showOntoloy, ["just a random type"])
+        self.assertRaises(TypeError, ols.showOntology, ["just a random type"])
 
 
 if __name__ == '__main__':
