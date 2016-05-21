@@ -22,27 +22,37 @@ def callZooma(searchurl):
 
 
 def predictAnnotation(value):
-    url=baseURL+"/services/annotate?propertyValue="
-    url=url+value
-    anwser=callZooma(url)
-    return anwser
+    try:
+        url=baseURL+"/services/annotate?propertyValue="
+        url=url+value
+        anwser=callZooma(url)
+        return anwser
+    except:
+        raise TypeError('Parameter must be of type string')
 
 def parseAnnotation(annotationTerm):
-    confidence=annotationTerm[0]["confidence"]
-    if (annotationTerm[0]["annotatedProperty"]["uri"]!=None):
-        uri=annotationTerm[0]["annotatedProperty"]["uri"]
+    if (type(annotationTerm) is annotation):
+        confidence=annotationTerm[0]["confidence"]
+        if (annotationTerm[0]["annotatedProperty"]["uri"]!=None):
+            uri=annotationTerm[0]["annotatedProperty"]["uri"]
+        else:
+            uri="Not available"
+            propertyValue=annotationTerm[0]["annotatedProperty"]["propertyValue"]
+            weblink=baseURL+"/services/annotate?propertyValue="+propertyValue
+            return annotation(confidence, uri, propertyValue, weblink)
     else:
-        uri="Not available"
-    propertyValue=annotationTerm[0]["annotatedProperty"]["propertyValue"]
-    weblink=baseURL+"/services/annotate?propertyValue="+propertyValue
-    return annotation(confidence, uri, propertyValue, weblink)
+        raise TypeError('Input value is not of type annotation!')
 
 def showAnnotation(annotationTerm):
-    print("------------------------------------------")
-    print("confidence: "+annotationTerm.confidence)
-    print("uri: "+annotationTerm.uri)
-    print("propertyValue: "+annotationTerm.propertyValue)
-    print("weblink: "+annotationTerm.weblink)
-    print("------------------------------------------")
+    if (type(annotationTerm) is annotation):
+        print("------------------------------------------")
+        print("confidence: "+annotationTerm.confidence)
+        print("uri: "+annotationTerm.uri)
+        print("propertyValue: "+annotationTerm.propertyValue)
+        print("weblink: "+annotationTerm.weblink)
+        print("------------------------------------------")
+    else:
+        raise TypeError('Input value is not of type annotation!')
 
-showAnnotation(parseAnnotation(predictAnnotation("mus+musculus")))
+
+#showAnnotation(parseAnnotation(predictAnnotation("mus+musculus")))
