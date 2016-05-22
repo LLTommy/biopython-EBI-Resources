@@ -5,11 +5,14 @@ import json
 baseURL="http://www.ebi.ac.uk/spot/zooma/v2/api"
 
 class annotation:
-    def __init__(self,confidence, uri, propertyValue, weblink):
+    def __init__(self,confidence, uri, propertyValue, weblink, semanticTags, annotatedBiologicalEntities, provenance):
         self.confidence=confidence
         self.uri=uri
         self.propertyValue=propertyValue
         self.weblink=weblink
+        self.semanticTags=semanticTags
+        self.annotatedBiologicalEntities=annotatedBiologicalEntities
+        self.provenance=provenance
 
 def callZooma(searchurl):
     try:
@@ -31,28 +34,44 @@ def predictAnnotation(value):
         raise TypeError('Parameter must be of type string')
 
 def parseAnnotation(annotationTerm):
-    if (type(annotationTerm) is annotation):
+    if (type(annotationTerm) is list):
         confidence=annotationTerm[0]["confidence"]
+
         if (annotationTerm[0]["annotatedProperty"]["uri"]!=None):
             uri=annotationTerm[0]["annotatedProperty"]["uri"]
         else:
             uri="Not available"
-            propertyValue=annotationTerm[0]["annotatedProperty"]["propertyValue"]
-            weblink=baseURL+"/services/annotate?propertyValue="+propertyValue
-            return annotation(confidence, uri, propertyValue, weblink)
+
+        propertyValue=annotationTerm[0]["annotatedProperty"]["propertyValue"]
+        weblink=baseURL+"/services/annotate?propertyValue="+propertyValue
+        annotatedProperty=annotationTerm[0]["derivedFrom"]["annotatedProperty"]
+        semanticTags=annotationTerm[0]["derivedFrom"]["semanticTags"]
+        annotatedBiologicalEntities=annotationTerm[0]["derivedFrom"]["annotatedBiologicalEntities"]
+        provenance=annotationTerm[0]["derivedFrom"]["provenance"]
+        return annotation(confidence, uri, propertyValue, weblink, semanticTags, annotatedBiologicalEntities, provenance)
     else:
-        raise TypeError('Input value is not of type annotation!')
+        raise TypeError('Input value is not of type list!')
 
 def showAnnotation(annotationTerm):
-    if (type(annotationTerm) is annotation):
+    if (isinstance(annotationTerm, annotation)):
         print("------------------------------------------")
         print("confidence: "+annotationTerm.confidence)
         print("uri: "+annotationTerm.uri)
         print("propertyValue: "+annotationTerm.propertyValue)
         print("weblink: "+annotationTerm.weblink)
+        print("-")
+        print("semanticTags:")
+        print(annotationTerm.semanticTags)
+        print("-")
+        print("annotatedBiologicalEntities: ")
+        print(annotationTerm.annotatedBiologicalEntities)
+        print("-")
+        print("provenance: ")
+        print(annotationTerm.provenance)
         print("------------------------------------------")
     else:
         raise TypeError('Input value is not of type annotation!')
 
 
 #showAnnotation(parseAnnotation(predictAnnotation("mus+musculus")))
+showAnnotation(parseAnnotation(predictAnnotation("homo+sapiens")))
