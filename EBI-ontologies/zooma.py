@@ -23,15 +23,35 @@ def callZooma(searchurl):
     except:
         raise LookupError('Failed to reach the Endpoint, Service is down or wrong url!')
 
-
-def predictAnnotation(value):
-    try:
+def searchForValue(value):
+    if (type(value) is str):
         url=baseURL+"/services/annotate?propertyValue="
         url=url+value
-        anwser=callZooma(url)
-        return anwser
-    except:
+        return callZooma(url)
+    else:
         raise TypeError('Parameter must be of type string')
+
+def searchForValueAndType(value, propertyType):
+    if ((type(value) is str) and (type(propertyType) is str)):
+        url=baseURL+"/services/annotate?propertyValue="
+        url=url+value+"&propertyType="+propertyType
+        return callZooma(url)
+    else:
+        raise TypeError('Parameters must be of type string')
+
+def searchForValueAndTypeInDatasource(value, propertyType, datasource):
+    if ((type(value) is str) and (type(propertyType) is str) and (type(datasource) is list)):
+        url=baseURL+"/services/annotate?propertyValue="
+        url=url+value+"&propertyType="+propertyType+"&filter=required:["
+
+        for source in datasource:
+            url=url+source+","
+
+        url =url[:-1]
+        url=url+"]"
+        return callZooma(url)
+    else:
+        raise TypeError('Parameters must be of type: string, string, list')
 
 def parseAnnotation(annotationTerm):
     if (type(annotationTerm) is list):
@@ -74,4 +94,6 @@ def showAnnotation(annotationTerm):
 
 
 #showAnnotation(parseAnnotation(predictAnnotation("mus+musculus")))
-showAnnotation(parseAnnotation(predictAnnotation("homo+sapiens")))
+#showAnnotation(parseAnnotation(searchForValue("homo+sapiens")))
+searchForValueAndTypeInDatasource("homo+sapiens", "organism", ["efo"])
+searchForValueAndTypeInDatasource("homo+sapiens", "organism", ["efo,atlas"])
